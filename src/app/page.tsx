@@ -1,90 +1,98 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import WorkoutForm from './components/WorkoutForm';
-import ResultDisplay from './components/ResultDisplay';
-import WorkoutHistory from './components/WorkoutHistory';
-
-interface WorkoutSession {
-  id: string;
-  date: string;
-  workout: string;
-  duration: number;
-  calories: number;
-  summary: string;
-}
+import Link from 'next/link';
+import styles from './page.module.css';
+import { useEffect, useState } from 'react';
+import HeroCarousel from './components/HeroCarousel';
 
 export default function Home() {
-  const [calories, setCalories] = useState<number | null>(null);
-  const [summary, setSummary] = useState<string | null>(null);
-  const [history, setHistory] = useState<WorkoutSession[]>([]);
+    const [recentWorkouts, setRecentWorkouts] = useState<any[]>([]);
 
-  useEffect(() => {
-    const savedHistory = localStorage.getItem('workoutHistory');
-    if (savedHistory) {
-      setHistory(JSON.parse(savedHistory));
-    }
-  }, []);
+    useEffect(() => {
+        const history = localStorage.getItem('workoutHistory');
+        if (history) {
+            setRecentWorkouts(JSON.parse(history).slice(0, 3));
+        }
+    }, []);
 
-  const handleResult = (calories: number, summary: string, date: string, workout: string, duration: number) => {
-    setCalories(calories);
-    setSummary(summary);
+    return (
+        <div className={styles.container}>
+            {/* Hero Section */}
+            <HeroCarousel />
 
-    const newSession: WorkoutSession = {
-      id: Date.now().toString(),
-      date,
-      workout,
-      duration,
-      calories,
-      summary
-    };
+            {/* Workout Plans Section */}
+            <section className={styles.section}>
+                <h2 className={styles.sectionTitle}>Featured Workout Plans</h2>
+                <div className={styles.grid}>
+                    <div className={styles.card}>
+                        <div className={styles.cardImage}>💪</div>
+                        <div className={styles.cardContent}>
+                            <h3 className={styles.cardTitle}>Muscle Gain</h3>
+                            <p className={styles.cardText}>Intense strength training program designed to build muscle mass and strength.</p>
+                        </div>
+                    </div>
+                    <div className={styles.card}>
+                        <div className={styles.cardImage}>🏃</div>
+                        <div className={styles.cardContent}>
+                            <h3 className={styles.cardTitle}>Weight Loss</h3>
+                            <p className={styles.cardText}>High-intensity cardio and circuit training to burn fat and improve endurance.</p>
+                        </div>
+                    </div>
+                    <div className={styles.card}>
+                        <div className={styles.cardImage}>🧘</div>
+                        <div className={styles.cardContent}>
+                            <h3 className={styles.cardTitle}>Flexibility & Core</h3>
+                            <p className={styles.cardText}>Yoga and core strengthening routines for better posture and mobility.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
 
-    const updatedHistory = [newSession, ...history];
-    setHistory(updatedHistory);
-    localStorage.setItem('workoutHistory', JSON.stringify(updatedHistory));
-  };
+            {/* Articles Section */}
+            <section className={styles.section}>
+                <h2 className={styles.sectionTitle}>Latest Articles</h2>
+                <div className={styles.grid}>
+                    <div className={styles.card}>
+                        <div className={styles.cardContent}>
+                            <h3 className={styles.cardTitle}>How to Reduce Belly Fat</h3>
+                            <p className={styles.cardText}>Proven strategies to lose belly fat scientifically.</p>
+                            <a href="https://www.healthline.com/nutrition/6-proven-ways-to-lose-belly-fat" target="_blank" rel="noopener noreferrer" className={styles.articleLink}>Read More →</a>
+                        </div>
+                    </div>
+                    <div className={styles.card}>
+                        <div className={styles.cardContent}>
+                            <h3 className={styles.cardTitle}>The Best Pre-Workout Meals</h3>
+                            <p className={styles.cardText}>Fuel your body for optimal performance with these meal ideas.</p>
+                            <a href="https://www.healthline.com/nutrition/eat-before-workout" target="_blank" rel="noopener noreferrer" className={styles.articleLink}>Read More →</a>
+                        </div>
+                    </div>
+                    <div className={styles.card}>
+                        <div className={styles.cardContent}>
+                            <h3 className={styles.cardTitle}>Benefits of HIIT</h3>
+                            <p className={styles.cardText}>Why High-Intensity Interval Training is efficient for weight loss.</p>
+                            <a href="https://www.healthline.com/nutrition/benefits-of-hiit" target="_blank" rel="noopener noreferrer" className={styles.articleLink}>Read More →</a>
+                        </div>
+                    </div>
+                </div>
+            </section>
 
-  return (
-    <div style={{
-      minHeight: '100vh',
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      justifyContent: 'center',
-      padding: '2rem'
-    }}>
-      <main style={{ width: '100%', maxWidth: '600px', position: 'relative', zIndex: 1 }}>
-        <h1 style={{
-          textAlign: 'center',
-          marginBottom: '2rem',
-          fontSize: '2.5rem',
-          background: 'linear-gradient(to right, #fff, #94a3b8)',
-          WebkitBackgroundClip: 'text',
-          WebkitTextFillColor: 'transparent'
-        }}>
-          Fitness Tracker
-        </h1>
-
-        <WorkoutForm onResult={handleResult} />
-
-        <ResultDisplay calories={calories} summary={summary} />
-
-        <WorkoutHistory history={history} />
-      </main>
-
-      <div style={{
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        width: '100%',
-        height: '100%',
-        zIndex: 0,
-        backgroundImage: 'url(/background.png)',
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        opacity: 0.5,
-        pointerEvents: 'none'
-      }} />
-    </div>
-  );
+            {/* Recent History Section */}
+            {recentWorkouts.length > 0 && (
+                <section className={styles.section}>
+                    <h2 className={styles.sectionTitle}>Your Recent Activity</h2>
+                    <div className={styles.grid}>
+                        {recentWorkouts.map((workout: any) => (
+                            <div key={workout.id} className={styles.card}>
+                                <div className={styles.cardContent}>
+                                    <h3 className={styles.cardTitle}>{workout.workout}</h3>
+                                    <p className={styles.cardText}>{new Date(workout.date).toLocaleDateString()} • {workout.duration} mins</p>
+                                    <p style={{ color: '#8b5cf6', fontWeight: 'bold' }}>{workout.calories} kcal</p>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </section>
+            )}
+        </div>
+    );
 }
